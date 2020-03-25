@@ -8,15 +8,15 @@ A simple implementation for 3D stop motion animations with series of .vox, .obj,
 
 ## Loading in model files for animations
 1. Within created script for MeshInstance call **init** function where:
-⋅⋅⋅**init**(_String_ 'path/to/folder', _Array_ ['animationName0', 'animationName1'], [_String_ 'vox'])
-⋅⋅⋅
-⋅⋅⋅This will load all objects within 'res://[path/to/folder]/[animationName0 ...n]/* .[vox]'
-⋅⋅⋅and store it as animation index [0 ...n]
-⋅⋅⋅
-⋅⋅⋅Example:
-⋅⋅⋅**init**('meshes/character1', ['stand', 'walk', 'jump', 'attack'], 'vox')
-⋅⋅⋅
-⋅⋅⋅Will load:
+ **init**(_String_ 'path/to/folder', _Array_ ['animationName0', 'animationName1'], [_String_ 'vox'])
+
+ This will load all objects within 'res://[path/to/folder]/[animationName0 ...n]/* .[vox]'
+ and store it as animation index [0 ...n]
+
+ Example:
+ **init**('meshes/character1', ['stand', 'walk', 'jump', 'attack'], 'vox')
+
+ Will load:
 
 Resource | Animation ID
 :--- | ---:
@@ -29,17 +29,17 @@ res://meshes/character1/attack/* .vox | 3
 Once model files are loaded and stored as animation IDs. Now to play animation you can call one of
 the tree methods: play, reverse, random; as follows:
 1. **play**(_int_ AnimationID, _bool_ loop)
-⋅⋅⋅This trigger animation 0 (which is stand) to play all loaded models within .../stand/* .vox
-⋅⋅⋅in a loop.
-⋅⋅⋅
-⋅⋅⋅Example:
-⋅⋅⋅**play**(0, true)
-⋅⋅⋅
+ This trigger animation 0 (which is stand) to play all loaded models within .../stand/* .vox
+ in a loop.
+
+ Example:
+ **play**(0, true)
+
 2. **reverse**(_int_ AnimationID, _bool_ loop)
-⋅⋅⋅Same as play but in reverse order.
-⋅⋅⋅
+ Same as play but in reverse order.
+
 3. **random**(_int_ AnimationID)
-⋅⋅⋅A random order animation is always played within a loop.
+ A random order animation is always played within a loop.
 
 To stop animation call **stop()** which will reset mesh to animation0 frame0. In our case stand animation frame 0.
 Pausing an animation is done by **pause()** which will keep the running animationID and its current frame.
