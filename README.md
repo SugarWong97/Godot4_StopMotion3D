@@ -19,7 +19,7 @@ A simple implementation for 3D stop motion animations with series of .vox, .obj,
 ⋅⋅⋅Will load:
 
 Resource | Animation ID
---- | ---:
+:--- | ---:
 res://meshes/character1/stand/* .vox | 0
 res://meshes/character1/walk/* .vox | 1
 res://meshes/character1/jump/* .vox | 2
