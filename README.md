@@ -17,15 +17,16 @@ A simple implementation for 3D stop motion animations with series of .vox, .obj,
 ⋅⋅⋅**init**('meshes/character1', ['stand', 'walk', 'jump', 'attack'], 'vox')
 ⋅⋅⋅
 ⋅⋅⋅Will load:
-|Resource|Animation ID|
-|---|---:|
-|res://meshes/character1/stand/* .vox|0|
-|---|---:|
-|res://meshes/character1/walk/* .vox|1|
-|---|---:|
-|res://meshes/character1/jump/* .vox|2|
-|---|---:|
-|res://meshes/character1/attack/* .vox|3|
+
+Resource | Animation ID
+--- | ---:
+res://meshes/character1/stand/* .vox | 0
+--- | ---:
+res://meshes/character1/walk/* .vox | 1
+--- | ---:
+res://meshes/character1/jump/* .vox | 2
+--- | ---:
+res://meshes/character1/attack/* .vox | 3
 
 ## Playing, pausing and stopping animations.
 Once model files are loaded and stored as animation IDs. Now to play animation you can call one of
