@@ -32,7 +32,7 @@ Once model files are loaded and stored as animation IDs. Now to play animation y
 the tree methods: play, reverse, random; as follows:
 1. **play**(_int_ AnimationID, _bool_ loop)
 
- This trigger animation 0 (which is stand) to play all loaded models within .../stand/* .vox
+ This triggers animation 0 (which is stand) to play all loaded models within .../stand/* .vox
  in a loop.
 
 Example:
