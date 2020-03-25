@@ -17,17 +17,17 @@ A simple implementation for 3D stop motion animations with series of .vox, .obj,
 ⋅⋅⋅**init**('meshes/character1', ['stand', 'walk', 'jump', 'attack'], 'vox')
 ⋅⋅⋅
 ⋅⋅⋅Will load:
-⋅⋅⋅| Resource								| Animation ID	|
-⋅⋅⋅| ---------------------------------------| -------------:|
-⋅⋅⋅| res://meshes/character1/stand/* .vox	| 0			  	|
-⋅⋅⋅| ---------------------------------------| -------------:|
-⋅⋅⋅| res://meshes/character1/walk/* .vox	| 1				|
-⋅⋅⋅| ---------------------------------------| -------------:|
-⋅⋅⋅| res://meshes/character1/jump/* .vox	| 2				|
-⋅⋅⋅| ---------------------------------------| -------------:|
-⋅⋅⋅| res://meshes/character1/attack/* .vox	| 3				|
+|Resource|Animation ID|
+|---|---:|
+|res://meshes/character1/stand/* .vox|0|
+|---|---:|
+|res://meshes/character1/walk/* .vox|1|
+|---|---:|
+|res://meshes/character1/jump/* .vox|2|
+|---|---:|
+|res://meshes/character1/attack/* .vox|3|
 
-# Playing, pausing and stopping animations.
+## Playing, pausing and stopping animations.
 Once model files are loaded and stored as animation IDs. Now to play animation you can call one of
 the tree methods: play, reverse, random; as follows:
 1. **play**(_int_ AnimationID, _bool_ loop)
@@ -47,7 +47,7 @@ To stop animation call **stop()** which will reset mesh to animation0 frame0. In
 Pausing an animation is done by **pause()** which will keep the running animationID and its current frame.
 Call **resume()** to resume paused animation.
 
-# Animation speed.
+## Animation speed.
 By default animation speed is set to delay 150ms between each frame.
 This can be changed by calling:
 **set_delay**(_float_ Milliseconds below 1000)
