@@ -29,7 +29,7 @@ res://meshes/character1/attack/* .vox | 3
 
 ## Playing, pausing and stopping animations
 Once model files are loaded and stored as animation IDs. Now to play animation you can call one of
-the tree methods: play, reverse, random; as follows:
+the three methods: play, reverse, random; as follows:
 1. **play**(_int_ AnimationID, _bool_ loop)
 
  This triggers animation 0 (which is stand) to play all loaded models within .../stand/* .vox
