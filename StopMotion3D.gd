@@ -1,4 +1,4 @@
-extends MeshInstance
+extends MeshInstance3D
 
 # Global animation container
 var nick = 'StopMotion3D'
@@ -23,14 +23,13 @@ func trace_prin(info_str):
 # var object = StopMotion3D.new('mesh/char', ['walk', 'jump'], 'vox')
 func init(path: String, animations: Array, extension: String = 'obj') :
 	# Use directory class.
-	var Dir = Directory.new()
 	var pathToMesh = 'res://'+ path
 	var source = ""
+	var Dir = DirAccess.open(pathToMesh)
 	# Set initial timer.
 	aTimer = Timer.new()
-
 	# Check if path exists.
-	if Dir.dir_exists(pathToMesh) == false :
+	if not Dir :
 		# No path to mesh.
 		trace_prin(nick +": Invalid path to mesh '"+ pathToMesh +"'")
 		return
@@ -49,7 +48,7 @@ func init(path: String, animations: Array, extension: String = 'obj') :
 			return
 
 		# Load animation.
-		Dir.open(source)
+		Dir = DirAccess.open(source)
 		Dir.list_dir_begin()
 		while true:
 			var frame = Dir.get_next()
@@ -77,7 +76,7 @@ func init(path: String, animations: Array, extension: String = 'obj') :
 	# Set time delay configuration.
 	aTimer.set_one_shot(false)
 	aTimer.set_autostart(true)
-	aTimer.connect('timeout', self, 'loopFrames')
+	aTimer.connect('timeout', Callable(self, 'loopFrames'))
 
 	# Add to scene
 	add_child(aTimer)
@@ -152,10 +151,9 @@ func loopFrames():
 		else:
 			pause()
 	if aMethod == 2:
-		aFrame = randi()%nOfFrames
+		pass#aFrame = randi()%nOfFrames
 
 # Updates delay
 func set_delayms(delay_ms: int = 150):
 	aDelay = delay_ms / 1000.0
 	aTimer.set_wait_time(aDelay)
-

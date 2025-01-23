@@ -1,6 +1,6 @@
-extends Spatial
+extends Node3D
 
-onready var mesh_instance = $MeshInstance
+@onready var mesh_instance = $MeshInstance3D
 
 func _ready():
 	# initializes models, imports animations by name
@@ -9,5 +9,5 @@ func _ready():
 	# calls to play animation[1] which is 'stand'
 	# in a loop until stop() is called.
 	mesh_instance.play(0, true) # play 'run'
-	mesh_instance.reverse(0, true) # play 'run' in reverse
-	mesh_instance.random(0) # play 'run' randomly
+	#mesh_instance.reverse(0, true) # play 'run' in reverse
+	#mesh_instance.random(0) # play 'run' randomly
