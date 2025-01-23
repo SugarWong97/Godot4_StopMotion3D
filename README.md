@@ -1,66 +1,105 @@
-# godot_StopMotion3D
-A simple implementation for 3D stop motion animations with series of .vox, .obj, etc. files within godot gdscript.
+
+# Godot StopMotion3D
+
+A simple implementation for 3D stop motion animations with series of  mesh files(like obj file) within godot gdscript.
 
 ## How to set up?
-1. Create a MeshInstance node within your scene
-2. Create/open script for that node.
-3. In the first line replace 'extends MeshInstance' with 'extends "res://path/to/StopMotion.gd"'
 
-## Loading in model files for animations
-1. Within created script for MeshInstance call **init** function where:
+1. Create a `MeshInstance` node within your scene
+2. Create/open script `StopMotion3D.gd` for that node.
+3. In somewhere, call the `MeshInstance` node which loading with script `StopMotion3D.gd` , with Function `init`, `set_delayms` and `play`.
 
- **init**(_String_ 'path/to/folder', _Array_ ['animationName0', 'animationName1'], [_String_ 'vox'])
+## Example
 
- This will load all objects within 'res://[path/to/folder]/[animationName0 ...n]/* .[vox]'
- and store it as animation index [0 ...n]
-
-Example:
 ```gdscript
- init('meshes/character1', ['stand', 'walk', 'jump', 'attack'], 'vox')
+onready var mesh_instance = $MeshInstance
+
+func _ready():
+	# initializes models, imports animations by name
+	mesh_instance.init('meshes/character1', ['run'], 'obj')
+	mesh_instance.set_delayms(50)
+	# calls to play animation[1] which is 'stand'
+	# in a loop until stop() is called.
+	mesh_instance.play(0, true) # play 'run'
+	mesh_instance.reverse(0, true) # play 'run' in reverse
+	mesh_instance.random(0) # play 'run' randomly
+
 ```
- Will load:
+### init meshes
 
-Resource | Animation ID
-:--- | ---:
-res://meshes/character1/stand/* .vox | 0
-res://meshes/character1/walk/* .vox | 1
-res://meshes/character1/jump/* .vox | 2
-res://meshes/character1/attack/* .vox | 3
-
-## Playing, pausing and stopping animations
-Once model files are loaded and stored as animation IDs. Now to play animation you can call one of
-the three methods: play, reverse, random; as follows:
-1. **play**(_int_ AnimationID, _bool_ loop)
-
- This triggers animation 0 (which is stand) to play all loaded models within .../stand/* .vox
- in a loop.
-
-Example:
 ```gdscript
-play(0, true)
+mesh_instance.init('meshes/character1', ['run', 'walk'], 'obj')
 ```
 
-2. **reverse**(_int_ AnimationID, _bool_ loop)
+Make sure  path in `init` exists.
 
- Same as play but in reverse order.
+| Resource                              | Animation ID |
+| :------------------------------------ | -----------: |
+| `res://meshes/character1/stand/*.obj` |            0 |
+| `res://meshes/character1/walk/*.obj`  |            1 |
 
-3. **random**(_int_ AnimationID)
+### Control animations
 
- A random order animation is always played within a loop.
+Once model files are loaded and stored as animation IDs. 
 
-To stop animation call **stop()** which will reset mesh to animation0 frame0. In our case stand animation frame 0.
-Pausing an animation is done by **pause()** which will keep the running animationID and its current frame.
-Call **resume()** to resume paused animation.
+#### play
 
-## Animation speed
-By default animation speed is set to delay 150ms between each frame.
+Now to play animation you can call one of the three methods: `play`, `reverse`, `random`; as follows:
+
+```gdscript
+# Plays stop motion animation.
+# Example:
+# object.play(0, true)
+# Plays walk animation in a loop.
+play(animation: int, loop: bool = false)
+
+# Plays stop motion in reverse.
+# Example:
+# object.reverse(0, true)
+# Plays walk in reverse (aka. moonwalk) animation in a loop.
+reverse(animation: int, loop: bool = false)
+
+# Plays stop motion in random order.
+# Example:
+# object.random('0')
+# Plays walk animation frames in a random order.
+random(animation: int)
+```
+
+#### stop & pause
+
+```gdscript
+# Stops animation and resets to initial 0,0 animation.
+stop()
+
+# Pauses animation at current frame.
+pause()
+
+# Resumes animation from current frame.
+resume()
+```
+
+To stop animation call `stop()` which will reset mesh to animation0 frame0. In our case stand animation frame 0.
+
+Pausing an animation is done by `pause()` which will keep the running animationID and its current frame.
+
+Call `resume()` to resume paused animation.
+
+#### Animation speed
+
+> By default animation speed is set to delay 150ms between each frame.
+
 This can be changed by calling:
 
-**set_delay**(_float_ Milliseconds below 1000)
+```gdscript
+set_delayms(delay_ms: int = 150)
+```
 
 For example to set animation speed to delay 100ms between each frame call:
 ```gdscript
-set_delay(100.0)
+set_delayms(100)
 ```
 
-Thanks!
+## Thanks
+
+https://github.com/Boyquotes/godot_StopMotion3D
