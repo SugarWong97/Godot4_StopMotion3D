@@ -12,7 +12,7 @@ A simple implementation for 3D stop motion animations with series of  mesh files
 ## Example
 
 ```gdscript
-onready var mesh_instance = $MeshInstance
+@onready var mesh_instance = $MeshInstance3D
 
 func _ready():
 	# initializes models, imports animations by name
