@@ -1,5 +1,5 @@
 
-# Godot StopMotion3D
+# Godot4 StopMotion3D
 
 A simple implementation for 3D stop motion animations with series of  mesh files(like obj file) within godot gdscript.
 
@@ -16,22 +16,40 @@ A simple implementation for 3D stop motion animations with series of  mesh files
 
 func _ready():
 	# initializes models, imports animations by name
-	mesh_instance.init('meshes/character1', ['run'], 'obj')
+	mesh_instance.init('meshes/character1', ['run', 'Stand'], 'obj')
+	# Set delay for frames
 	mesh_instance.set_delayms(50)
-	# calls to play animation[1] which is 'stand'
-	# in a loop until stop() is called.
-	mesh_instance.play(0, true) # play 'run'
-	mesh_instance.reverse(0, true) # play 'run' in reverse
-	mesh_instance.random(0) # play 'run' randomly
 
+
+	mesh_instance.play('run', true) # play 'run'
+	#var id = mesh_instance.animationNameToId('run')
+	#mesh_instance.playWithID(id, true) # play 'run'
+
+	#mesh_instance.reverse('run', true) # play 'run' in reverse
+
+	#mesh_instance.random('run') # play 'run' randomly
+
+	#mesh_instance.pause() # pause
+	#mesh_instance.resume() # resume
+	#mesh_instance.stop() # stop
 ```
 ### init meshes
+
+```gdscript
+# Setting up animation.
+# Example:
+# @onready var mesh_instance = $MeshInstance3D
+# mesh_instance.init('meshes/character1', ['walk', 'jump'], 'obj')
+init(path: String, animations: Array, extension: String = 'obj')
+```
+
+Suppose you make  files at `res://meshes/character1/stand/*.obj` and `res://meshes/character1/walk/*.obj`， the init code will be：
 
 ```gdscript
 mesh_instance.init('meshes/character1', ['run', 'walk'], 'obj')
 ```
 
-Make sure  path in `init` exists.
+And it will make a simple mapping between animations and ID：
 
 | Resource                              | Animation ID |
 | :------------------------------------ | -----------: |
@@ -49,21 +67,43 @@ Now to play animation you can call one of the three methods: `play`, `reverse`, 
 ```gdscript
 # Plays stop motion animation.
 # Example:
-# object.play(0, true)
-# Plays walk animation in a loop.
-play(animation: int, loop: bool = false)
+# mesh_instance.play('run', true)
+play(animationName: String, loop: bool = false)
 
 # Plays stop motion in reverse.
 # Example:
-# object.reverse(0, true)
-# Plays walk in reverse (aka. moonwalk) animation in a loop.
-reverse(animation: int, loop: bool = false)
+# mesh_instance.reverse('run', true)
+reverse(animationName: String, loop: bool = false)
+
+# Plays stop motion in random order forever
+# Example:
+# mesh_instance.random('run')
+random(animationName: String)
+```
+
+If you want to play more effective, call the `animationNameToId` once, then `playWithID`, `reverseWithID`, `randomWithID`.
+
+```gdscript
+# cover Animation Name to Animation ID
+# Example:
+# var id  = mesh_instance.animationNameToId('run')
+# mesh_instance.playWithID(id)
+animationNameToId(animationName: String)
+
+# Plays stop motion animation.
+# Example:
+# mesh_instance.playWithID(id, true)
+playWithID(animation: int, loop: bool = false)
+
+# Plays stop motion in reverse.
+# Example:
+# mesh_instance.reverseWithID(id, true)
+reverseWithID(animation: int, loop: bool = false)
 
 # Plays stop motion in random order.
 # Example:
-# object.random('0')
-# Plays walk animation frames in a random order.
-random(animation: int)
+# mesh_instance.randomWithID(id)
+randomWithID(animation: int)
 ```
 
 #### stop & pause
@@ -93,11 +133,6 @@ This can be changed by calling:
 
 ```gdscript
 set_delayms(delay_ms: int = 150)
-```
-
-For example to set animation speed to delay 100ms between each frame call:
-```gdscript
-set_delayms(100)
 ```
 
 ## Thanks

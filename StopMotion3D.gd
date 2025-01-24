@@ -1,18 +1,27 @@
 extends MeshInstance3D
 
+enum PlayOrder
+{
+	PlayInOrder = 0,
+	PlayInReverse,
+	PlayInRamodm
+}
+
+
 # Global animation container
 var nick = 'StopMotion3D'
 var loadedAnimations = []
+var dictForLoadedAnimations = {}
 
 # Animation playback settings.
-var aToPlay = 0
-var aMethod = 0
-var aOfLoop = false
-var aFrame = 0
-var aDelay = 0
+var animationIdToPlay = 0
+var animationPlayOrder = PlayOrder.PlayInOrder
+var isAnimationLoopPlay = false
+var curAnimationFrame = 0
+var frameDelay = 0
 
 # Actual timer.
-var aTimer = null
+var timerForAnimation = null
 
 func trace_prin(info_str):
 	push_error(info_str)
@@ -20,24 +29,25 @@ func trace_prin(info_str):
 
 # Setting up animation.
 # Example:
-# var object = StopMotion3D.new('mesh/char', ['walk', 'jump'], 'vox')
+# @onready var mesh_instance = $MeshInstance3D
+# mesh_instance.init('meshes/character1', ['walk', 'jump'], 'obj')
 func init(path: String, animations: Array, extension: String = 'obj') :
 	# Use directory class.
 	var pathToMesh = 'res://'+ path
 	var source = ""
 	var Dir = DirAccess.open(pathToMesh)
 	# Set initial timer.
-	aTimer = Timer.new()
+	timerForAnimation = Timer.new()
 	# Check if path exists.
 	if not Dir :
 		# No path to mesh.
 		trace_prin(nick +": Invalid path to mesh '"+ pathToMesh +"'")
 		return
-	
+
 	# Load all objects from directory.
 	for i in range(animations.size()):
 		# Prepare animation container.
-		loadedAnimations.append([]);
+		loadedAnimations.append([])
 		
 		# Set animation source path.
 		source = pathToMesh +'/'+ animations[i]
@@ -59,8 +69,8 @@ func init(path: String, animations: Array, extension: String = 'obj') :
 			# Load animation from source.
 			frame = frame.rsplit('.')
 			frame = frame[0]
-			var fpath = source +'/'+ frame +'.'+ extension;
-
+			var fpath = source +'/'+ frame +'.'+ extension
+			dictForLoadedAnimations[animations[i]] = i
 			loadedAnimations[i].push_back(load(fpath))
 		Dir.list_dir_end()
 
@@ -74,86 +84,117 @@ func init(path: String, animations: Array, extension: String = 'obj') :
 	set_delayms()
 	
 	# Set time delay configuration.
-	aTimer.set_one_shot(false)
-	aTimer.set_autostart(true)
-	aTimer.connect('timeout', Callable(self, 'loopFrames'))
+	timerForAnimation.set_one_shot(false)
+	timerForAnimation.set_autostart(true)
+	timerForAnimation.connect('timeout', Callable(self, 'loopFrames'))
 
 	# Add to scene
-	add_child(aTimer)
+	add_child(timerForAnimation)
+
+# cover Animation Name to Animation ID
+# Example:
+# var id  = mesh_instance.animationNameToId('run')
+# mesh_instance.playWithID(id)
+func animationNameToId(animationName: String):
+	for aname in dictForLoadedAnimations:
+		if animationName == aname:
+			return dictForLoadedAnimations[aname]
+	return -1
+
+
+func _play_control(animation: int, method : int, loop: bool = false):
+	if animation < 0 :
+		trace_prin(nick + ": Can not Play Animation, id not found")
+		pause()
+		return
+	# Default: 0
+	animationIdToPlay = animation
+	animationPlayOrder = method
+	isAnimationLoopPlay = loop
+	resume()
 
 # Plays stop motion animation.
 # Example:
-# object.play(0, true)
-# Plays walk animation in a loop.
-func play(animation: int, loop: bool = false):
-	# Default: 0
-	aToPlay = animation
-	aMethod = 0
-	aOfLoop = loop
-	resume()
+# mesh_instance.playWithID(id, true)
+func playWithID(animation: int, loop: bool = false):
+	_play_control(animation, PlayOrder.PlayInOrder, loop)
+
+# Plays stop motion animation.
+# Example:
+# mesh_instance.play('run', true)
+func play(animationName: String, loop: bool = false):
+	var id = animationNameToId(animationName)
+	playWithID(id, loop)
 
 # Plays stop motion in reverse.
 # Example:
-# object.reverse(0, true)
-# Plays walk in reverse (aka. moonwalk) animation in a loop.
-func reverse(animation: int, loop: bool = false):
-	# Reverse: 
-	aToPlay = animation
-	aMethod = 1
-	aOfLoop = loop
-	resume()
+# mesh_instance.reverseWithID(id, true)
+func reverseWithID(animation: int, loop: bool = false):
+	_play_control(animation, PlayOrder.PlayInReverse, loop)
 
-# Plays stop motion in random order.
+# Plays stop motion in reverse.
 # Example:
-# object.random('0')
-# Plays walk animation frames in a random order.
-func random(animation: int):
-	# Random: 2
-	aToPlay = animation
-	aMethod = 2
-	aOfLoop = true
-	resume()
+# mesh_instance.reverse('run', true)
+func reverse(animationName: String, loop: bool = false):
+	var id = animationNameToId(animationName)
+	reverseWithID(id, loop)
+
+# Plays stop motion in random order forever
+# Example:
+# mesh_instance.randomWithID(id)
+func randomWithID(animation: int):
+	_play_control(animation, PlayOrder.PlayInRamodm, true)
+
+# Plays stop motion in random order forever
+# Example:
+# mesh_instance.random('run')
+func random(animationName: String):
+	var id = animationNameToId(animationName)
+	randomWithID(id)
 
 # Stops animation and resets to initial 0,0 animation.
 func stop():
 	# Pause delay timer.
-	pause();
-	aFrame = 0
+	pause()
+	curAnimationFrame = 0
+	if len(loadedAnimations) == 0 or len(loadedAnimations[0]) == 0 :
+		trace_prin(nick + ": Stop, But nothing loaded")
+		return
 	# Set self mesh to zero.
 	self.mesh = loadedAnimations[0][0]
 # Pauses animation at current frame.
 func pause():
-	aTimer.set_paused(true)
+	timerForAnimation.set_paused(true)
 # Resumes animation from current frame.
 func resume():
-	aTimer.set_paused(false)
+	timerForAnimation.set_paused(false)
 
 # Loops trough animation frames.
 func loopFrames():
 	# Update mesh.
-	self.mesh = loadedAnimations[aToPlay][aFrame]
+	self.mesh = loadedAnimations[animationIdToPlay][curAnimationFrame]
 
 	# Set number of frames in animation.
-	var nOfFrames = loadedAnimations[aToPlay].size() - 1
+	var nOfFrames = loadedAnimations[animationIdToPlay].size() - 1
 
-	if aMethod == 0 :
-		if aFrame < nOfFrames:
-			aFrame += 1
-		elif aOfLoop == true:
-			aFrame = 0
+	if animationPlayOrder == PlayOrder.PlayInOrder :
+		if curAnimationFrame < nOfFrames:
+			curAnimationFrame += 1
+		elif isAnimationLoopPlay == true:
+			curAnimationFrame = 0
 		else:
 			pause()
-	if aMethod == 1 :
-		if aFrame > 0:
-			aFrame -= 1
-		elif aOfLoop == true:
-			aFrame = nOfFrames
+	if animationPlayOrder == PlayOrder.PlayInReverse :
+		if curAnimationFrame > 0:
+			curAnimationFrame -= 1
+		elif isAnimationLoopPlay == true:
+			curAnimationFrame = nOfFrames
 		else:
 			pause()
-	if aMethod == 2:
-		pass#aFrame = randi()%nOfFrames
+	if animationPlayOrder == PlayOrder.PlayInRamodm:
+		curAnimationFrame = randi() % nOfFrames
 
 # Updates delay
 func set_delayms(delay_ms: int = 150):
-	aDelay = delay_ms / 1000.0
-	aTimer.set_wait_time(aDelay)
+	frameDelay = delay_ms / 1000.0
+	timerForAnimation.set_wait_time(frameDelay)
