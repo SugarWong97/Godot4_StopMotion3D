@@ -1,5 +1,10 @@
 extends MeshInstance3D
 
+#@export_dir var loadAnimationsPath : String = "res://"
+@export_dir var loadAnimationsPath : Array[String]
+@export_enum("obj", "gltf") var animationExtension: String = "gltf"
+
+
 enum PlayOrder
 {
 	PlayInOrder = 0,
@@ -7,11 +12,11 @@ enum PlayOrder
 	PlayInRamodm
 }
 
-
 # Global animation container
 var nick = 'StopMotion3D'
 var loadedAnimations = []
 var dictForLoadedAnimations = {}
+
 
 # Animation playback settings.
 var animationIdToPlay = 0
@@ -27,69 +32,104 @@ func trace_prin(info_str):
 	push_error(info_str)
 	print(info_str)
 
+func importMeshFromFbxFile(filePath):
+	# prep gltf loader
+	var gltf_state: GLTFState = GLTFState.new()
+	var gltf_doc: GLTFDocument = GLTFDocument.new()
+
+	# load resource and create outline mesh
+	var error : Error = gltf_doc.append_from_file(filePath, gltf_state)
+	var rootNode: Node
+	if error != OK:
+		trace_prin(nick + "Load file error : %s" %(filePath))
+		return null
+	rootNode = gltf_doc.generate_scene(gltf_state)
+	return rootNode.get_child(0).mesh
+## FIXME : Not the final code for this Function.
+func importMeshFromObjFile(filePath):
+	return load(filePath)
+
+func recordNewFrame(gotMesh, animationName, index) :
+	if gotMesh :
+		#trace_prin("set map animationName [" +  animationName + "] = "+ str(index))
+		dictForLoadedAnimations[animationName] = index
+		loadedAnimations[index].push_back(gotMesh)
+
+func _ready() :
+	# Set initial timer.
+	timerForAnimation = Timer.new()
+	# Set time delay configuration.
+	timerForAnimation.set_one_shot(false)
+	set_delayms()
+	timerForAnimation.set_autostart(true)
+	timerForAnimation.stop()
+	timerForAnimation.connect('timeout', Callable(self, 'loopFrames'))
+	# Add to scene
+	add_child(timerForAnimation)
+
 # Setting up animation.
 # Example:
 # @onready var mesh_instance = $MeshInstance3D
-# mesh_instance.init('meshes/character1', ['walk', 'jump'], 'obj')
-func init(path: String, animations: Array, extension: String = 'obj') :
-	# Use directory class.
-	var pathToMesh = 'res://'+ path
+# mesh_instance.init()
+func init() :
 	var source = ""
-	var Dir = DirAccess.open(pathToMesh)
-	# Set initial timer.
-	timerForAnimation = Timer.new()
-	# Check if path exists.
-	if not Dir :
-		# No path to mesh.
-		trace_prin(nick +": Invalid path to mesh '"+ pathToMesh +"'")
-		return
+	var animationName = ""
+
+	loadedAnimations.clear()
+	dictForLoadedAnimations.clear()
 
 	# Load all objects from directory.
-	for i in range(animations.size()):
+	for i in range(loadAnimationsPath.size()):
+		var pathToMesh =  loadAnimationsPath[i]
+		# Check if path exists.
+		var Dir = DirAccess.open(pathToMesh)
+		if not Dir :
+			# No path to mesh.
+			trace_prin(nick + ": Invalid path to mesh '" + pathToMesh + "'")
+			continue
 		# Prepare animation container.
+		animationName = loadAnimationsPath[i].get_file()
 		loadedAnimations.append([])
 		
 		# Set animation source path.
-		source = pathToMesh +'/'+ animations[i]
-		
+		source = loadAnimationsPath[i]
+
 		# Check if named animation exists.
 		if  Dir.dir_exists(source) == false:
-			trace_prin(nick +": Missing animation '"+ source +"'")
+			trace_prin(nick +": Missing animation '"+ animationName + "'")
 			return
 
 		# Load animation.
 		Dir = DirAccess.open(source)
 		Dir.list_dir_begin()
 		while true:
-			var frame = Dir.get_next()
-			if(frame == ''): 
+			var frameFileName = Dir.get_next()
+			if(frameFileName == ''):
 				break # Break loop on no file returned.
-			if frame.begins_with('.'):
+			if frameFileName.begins_with('.'):
 				continue
-			# Load animation from source.
-			frame = frame.rsplit('.')
+			var fileExtension = frameFileName.get_extension()
+			var frame = frameFileName.rsplit('.')
 			frame = frame[0]
-			var fpath = source +'/'+ frame +'.'+ extension
-			dictForLoadedAnimations[animations[i]] = i
-			loadedAnimations[i].push_back(load(fpath))
+			var fpath = source + '/' + frame + '.' + fileExtension
+			var gotMesh
+			if animationExtension == 'obj' :
+				gotMesh = importMeshFromObjFile(fpath)
+				recordNewFrame(gotMesh, animationName, i)
+			if animationExtension == 'gltf' :
+				if fileExtension != "gltf" and fileExtension != "glb" :
+					continue
+				gotMesh = importMeshFromFbxFile(fpath)
+				recordNewFrame(gotMesh, animationName, i)
 		Dir.list_dir_end()
 
 	if len(loadedAnimations) == 0 or len(loadedAnimations[0]) == 0 :
-		trace_prin(nick +": Invalid path to mesh '"+ pathToMesh +"'")
+		trace_prin(nick + ": Not Animation Loaded")
 		return
 
 	# Set initial frame.
 	self.mesh = loadedAnimations[0][0]
-
-	set_delayms()
-	
-	# Set time delay configuration.
-	timerForAnimation.set_one_shot(false)
-	timerForAnimation.set_autostart(true)
-	timerForAnimation.connect('timeout', Callable(self, 'loopFrames'))
-
-	# Add to scene
-	add_child(timerForAnimation)
+	timerForAnimation.start()
 
 # cover Animation Name to Animation ID
 # Example:
@@ -107,7 +147,6 @@ func _play_control(animation: int, method : int, loop: bool = false):
 		trace_prin(nick + ": Can not Play Animation, id not found")
 		pause()
 		return
-	# Default: 0
 	animationIdToPlay = animation
 	animationPlayOrder = method
 	isAnimationLoopPlay = loop

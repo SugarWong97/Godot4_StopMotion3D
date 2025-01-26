@@ -7,7 +7,10 @@ A simple implementation for 3D stop motion animations with series of  mesh files
 
 1. Create a `MeshInstance` node within your scene
 2. Create/open script `StopMotion3D.gd` for that node.
-3. In somewhere, call the `MeshInstance` node which loading with script `StopMotion3D.gd` , with Function `init`, `set_delayms` and `play`.
+3. Config `MeshInstance` node in `Inspector`, you will see `Load Animations Path` and `Animation Extension`:
+ - `Load Animations Path` is an array of model path, each path will be searched. Each last level of path will be used as the `Animation Name`.
+ - `Animation Extension` means the type of model file matching, support 'gltf'(`.glb` or `.gltf`) and 'Wavefront'(`.obj`) file.
+4. In somewhere as you want, call the `MeshInstance` node which loading with script `StopMotion3D.gd`, with Function `init`, `set_delayms` and `play`.
 
 ## Example
 
@@ -16,7 +19,7 @@ A simple implementation for 3D stop motion animations with series of  mesh files
 
 func _ready():
 	# initializes models, imports animations by name
-	mesh_instance.init('meshes/character1', ['run', 'Stand'], 'obj')
+	mesh_instance.init()
 	# Set delay for frames
 	mesh_instance.set_delayms(50)
 
@@ -39,26 +42,32 @@ func _ready():
 # Setting up animation.
 # Example:
 # @onready var mesh_instance = $MeshInstance3D
-# mesh_instance.init('meshes/character1', ['walk', 'jump'], 'obj')
-init(path: String, animations: Array, extension: String = 'obj')
+# mesh_instance.init()
+init()
 ```
 
-Suppose you make  files at `res://meshes/character1/stand/*.obj` and `res://meshes/character1/walk/*.obj`， the init code will be：
+Suppose you have made files at `res://meshes/character1/run/*.glb` and `res://meshes/character1/walk/*.glb`, added them(`res://meshes/character1/stand/` and `res://meshes/character1/walk/`) into `Load Animations Path` and selected `glb` as `Animation Extension` in the  `Inspector` of `MeshInstance` node,
+
+after `init()` function called you will get  `Animation Name` with `stand` and `walk`.
 
 ```gdscript
-mesh_instance.init('meshes/character1', ['run', 'walk'], 'obj')
+mesh_instance.init()
 ```
 
-And it will make a simple mapping between animations and ID：
+And it will make a simple mapping between Animation Name and ID：
 
-| Resource                              | Animation ID |
-| :------------------------------------ | -----------: |
-| `res://meshes/character1/stand/*.obj` |            0 |
-| `res://meshes/character1/walk/*.obj`  |            1 |
+> Animation ID is another way to access the Animation.
+
+|             Resource             | Animation Name | Animation ID |
+| -------------------------------- | -------------- | ------------ |
+| `res://meshes/character1/stand/` | stand          | 0            |
+| `res://meshes/character1/walk/`  | walk           | 1            |
 
 ### Control animations
 
 Once model files are loaded and stored as animation IDs. 
+
+You can play, stop and pause the animation loaded, and change the speed for frame playing.
 
 #### play
 
@@ -138,3 +147,4 @@ set_delayms(delay_ms: int = 150)
 ## Thanks
 
 https://github.com/Boyquotes/godot_StopMotion3D
+

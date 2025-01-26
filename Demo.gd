@@ -4,11 +4,10 @@ extends Node3D
 
 func _ready():
 	# initializes models, imports animations by name
-	mesh_instance.init('meshes/character1', ['run'], 'obj')
+	mesh_instance.init()
 
 	# Set delay for frames
 	mesh_instance.set_delayms(50)
-
 
 	mesh_instance.play('run', true) # play 'run'
 	#var id = mesh_instance.animationNameToId('run')
