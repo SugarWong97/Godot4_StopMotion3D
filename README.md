@@ -5,44 +5,45 @@ A simple implementation for 3D stop motion animations with series of  mesh files
 
 ## How to set up?
 
-1. Create a `MeshInstance` node within your scene
-2. Create/open script `StopMotion3D.gd` for that node.
+1. Create a `MeshInstance3D` node within your scene
+2. Create a `Node3D` node, name it `MeshAnimationPlayer` and attach script `MeshAnimationPlayer.gd` for that node.
 3. Config `MeshInstance` node in `Inspector`, you will see `Load Animations Path` and `Animation Extension`:
  - `Load Animations Path` is an array of model path, each path will be searched. Each last level of path will be used as the `Animation Name`.
  - `Animation Extension` means the type of model file matching, support 'gltf'(`.glb` or `.gltf`) and 'Wavefront'(`.obj`) file.
-4. In somewhere as you want, call the `MeshInstance` node which loading with script `StopMotion3D.gd`, with Function `init`, `set_delayms` and `play`.
+ - `Mesh Node Path` is the node path which for playing mesh animation.
+4. In somewhere as you want, call the `MeshAnimationPlayer` node which loading with script `MeshAnimationPlayer.gd`, with Function `init`, `set_delayms` and `play`.
 
 ## Example
 
 ```gdscript
-@onready var mesh_instance = $MeshInstance3D
+@onready var mesh_animation_player: MeshAnimationPlayer = $MeshAnimationPlayer
 
 func _ready():
 	# initializes models, imports animations by name
-	mesh_instance.init()
+	mesh_animation_player.init()
+
 	# Set delay for frames
-	mesh_instance.set_delayms(50)
+	mesh_animation_player.set_delayms(150)
 
+	mesh_animation_player.play('run', true) # play 'run'
+	#var id = mesh_animation_player.animationNameToId('run')
+	#mesh_animation_player.playWithID(id, true) # play 'run'
 
-	mesh_instance.play('run', true) # play 'run'
-	#var id = mesh_instance.animationNameToId('run')
-	#mesh_instance.playWithID(id, true) # play 'run'
+	#mesh_animation_player.reverse('run', true) # play 'run' in reverse
 
-	#mesh_instance.reverse('run', true) # play 'run' in reverse
+	#mesh_animation_player.random('run') # play 'run' randomly
 
-	#mesh_instance.random('run') # play 'run' randomly
-
-	#mesh_instance.pause() # pause
-	#mesh_instance.resume() # resume
-	#mesh_instance.stop() # stop
+	#mesh_animation_player.pause() # pause
+	#mesh_animation_player.resume() # resume
+	#mesh_animation_player.stop() # stop
 ```
 ### init meshes
 
 ```gdscript
 # Setting up animation.
 # Example:
-# @onready var mesh_instance = $MeshInstance3D
-# mesh_instance.init()
+# @onready var mesh_animation_player: MeshAnimationPlayer = $MeshAnimationPlayer
+# mesh_animation_player.init()
 init()
 ```
 
@@ -51,7 +52,7 @@ Suppose you have made files at `res://meshes/character1/run/*.glb` and `res://me
 after `init()` function called you will get  `Animation Name` with `stand` and `walk`.
 
 ```gdscript
-mesh_instance.init()
+mesh_animation_player.init()
 ```
 
 And it will make a simple mapping between Animation Name and ID：
@@ -76,17 +77,17 @@ Now to play animation you can call one of the three methods: `play`, `reverse`, 
 ```gdscript
 # Plays stop motion animation.
 # Example:
-# mesh_instance.play('run', true)
+# mesh_animation_player.play('run', true)
 play(animationName: String, loop: bool = false)
 
 # Plays stop motion in reverse.
 # Example:
-# mesh_instance.reverse('run', true)
+# mesh_animation_player.reverse('run', true)
 reverse(animationName: String, loop: bool = false)
 
 # Plays stop motion in random order forever
 # Example:
-# mesh_instance.random('run')
+# mesh_animation_player.random('run')
 random(animationName: String)
 ```
 
@@ -95,23 +96,23 @@ If you want to play more effective, call the `animationNameToId` once, then `pla
 ```gdscript
 # cover Animation Name to Animation ID
 # Example:
-# var id  = mesh_instance.animationNameToId('run')
-# mesh_instance.playWithID(id)
+# var id  = mesh_animation_player.animationNameToId('run')
+# mesh_animation_player.playWithID(id)
 animationNameToId(animationName: String)
 
 # Plays stop motion animation.
 # Example:
-# mesh_instance.playWithID(id, true)
+# mesh_animation_player.playWithID(id, true)
 playWithID(animation: int, loop: bool = false)
 
 # Plays stop motion in reverse.
 # Example:
-# mesh_instance.reverseWithID(id, true)
+# mesh_animation_player.reverseWithID(id, true)
 reverseWithID(animation: int, loop: bool = false)
 
 # Plays stop motion in random order.
 # Example:
-# mesh_instance.randomWithID(id)
+# mesh_animation_player.randomWithID(id)
 randomWithID(animation: int)
 ```
 
