@@ -1,22 +1,22 @@
 extends Node3D
 
-@onready var mesh_instance = $MeshInstance3D
+@onready var mesh_animation_player: MeshAnimationPlayer = $MeshAnimationPlayer
 
 func _ready():
 	# initializes models, imports animations by name
-	mesh_instance.init()
+	mesh_animation_player.init()
 
 	# Set delay for frames
-	mesh_instance.set_delayms(50)
+	mesh_animation_player.set_delayms(150)
 
-	mesh_instance.play('run', true) # play 'run'
-	#var id = mesh_instance.animationNameToId('run')
-	#mesh_instance.playWithID(id, true) # play 'run'
+	mesh_animation_player.play('run', true) # play 'run'
+	#var id = mesh_animation_player.animationNameToId('run')
+	#mesh_animation_player.playWithID(id, true) # play 'run'
 
-	#mesh_instance.reverse('run', true) # play 'run' in reverse
+	#mesh_animation_player.reverse('run', true) # play 'run' in reverse
 
-	#mesh_instance.random('run') # play 'run' randomly
+	#mesh_animation_player.random('run') # play 'run' randomly
 
-	#mesh_instance.pause() # pause
-	#mesh_instance.resume() # resume
-	#mesh_instance.stop() # stop
+	#mesh_animation_player.pause() # pause
+	#mesh_animation_player.resume() # resume
+	#mesh_animation_player.stop() # stop

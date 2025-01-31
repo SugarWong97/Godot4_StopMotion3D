@@ -1,9 +1,9 @@
-extends MeshInstance3D
+extends Node3D
+class_name MeshAnimationPlayer
 
-#@export_dir var loadAnimationsPath : String = "res://"
 @export_dir var loadAnimationsPath : Array[String]
 @export_enum("obj", "gltf") var animationExtension: String = "gltf"
-
+@export_node_path("MeshInstance3D") var meshNodePath
 
 enum PlayOrder
 {
@@ -17,6 +17,7 @@ var nick = 'StopMotion3D'
 var loadedAnimations = []
 var dictForLoadedAnimations = {}
 
+var meshObj : MeshInstance3D
 
 # Animation playback settings.
 var animationIdToPlay = 0
@@ -57,6 +58,8 @@ func recordNewFrame(gotMesh, animationName, index) :
 
 func _ready() :
 	# Set initial timer.
+	if meshNodePath.is_empty() == false:
+		meshObj = get_node(meshNodePath)
 	timerForAnimation = Timer.new()
 	# Set time delay configuration.
 	timerForAnimation.set_one_shot(false)
@@ -69,8 +72,8 @@ func _ready() :
 
 # Setting up animation.
 # Example:
-# @onready var mesh_instance = $MeshInstance3D
-# mesh_instance.init()
+# @onready var mesh_animation_player: MeshAnimationPlayer = $MeshAnimationPlayer
+# mesh_animation_player.init()
 func init() :
 	var source = ""
 	var animationName = ""
@@ -128,13 +131,13 @@ func init() :
 		return
 
 	# Set initial frame.
-	self.mesh = loadedAnimations[0][0]
+	#meshObj.mesh = loadedAnimations[0][0]
 	timerForAnimation.start()
 
 # cover Animation Name to Animation ID
 # Example:
-# var id  = mesh_instance.animationNameToId('run')
-# mesh_instance.playWithID(id)
+# var id  = mesh_animation_player.animationNameToId('run')
+# mesh_animation_player.playWithID(id)
 func animationNameToId(animationName: String):
 	for aname in dictForLoadedAnimations:
 		if animationName == aname:
@@ -154,39 +157,39 @@ func _play_control(animation: int, method : int, loop: bool = false):
 
 # Plays stop motion animation.
 # Example:
-# mesh_instance.playWithID(id, true)
+# mesh_animation_player.playWithID(id, true)
 func playWithID(animation: int, loop: bool = false):
 	_play_control(animation, PlayOrder.PlayInOrder, loop)
 
 # Plays stop motion animation.
 # Example:
-# mesh_instance.play('run', true)
+# mesh_animation_player.play('run', true)
 func play(animationName: String, loop: bool = false):
 	var id = animationNameToId(animationName)
 	playWithID(id, loop)
 
 # Plays stop motion in reverse.
 # Example:
-# mesh_instance.reverseWithID(id, true)
+# mesh_animation_player.reverseWithID(id, true)
 func reverseWithID(animation: int, loop: bool = false):
 	_play_control(animation, PlayOrder.PlayInReverse, loop)
 
 # Plays stop motion in reverse.
 # Example:
-# mesh_instance.reverse('run', true)
+# mesh_animation_player.reverse('run', true)
 func reverse(animationName: String, loop: bool = false):
 	var id = animationNameToId(animationName)
 	reverseWithID(id, loop)
 
 # Plays stop motion in random order forever
 # Example:
-# mesh_instance.randomWithID(id)
+# mesh_animation_player.randomWithID(id)
 func randomWithID(animation: int):
 	_play_control(animation, PlayOrder.PlayInRamodm, true)
 
 # Plays stop motion in random order forever
 # Example:
-# mesh_instance.random('run')
+# mesh_animation_player.random('run')
 func random(animationName: String):
 	var id = animationNameToId(animationName)
 	randomWithID(id)
@@ -200,7 +203,7 @@ func stop():
 		trace_prin(nick + ": Stop, But nothing loaded")
 		return
 	# Set self mesh to zero.
-	self.mesh = loadedAnimations[0][0]
+	meshObj.mesh = loadedAnimations[0][0]
 # Pauses animation at current frame.
 func pause():
 	timerForAnimation.set_paused(true)
@@ -211,7 +214,7 @@ func resume():
 # Loops trough animation frames.
 func loopFrames():
 	# Update mesh.
-	self.mesh = loadedAnimations[animationIdToPlay][curAnimationFrame]
+	meshObj.mesh = loadedAnimations[animationIdToPlay][curAnimationFrame]
 
 	# Set number of frames in animation.
 	var nOfFrames = loadedAnimations[animationIdToPlay].size() - 1
