@@ -132,6 +132,7 @@ func init() :
 
 	# Set initial frame.
 	#meshObj.mesh = loadedAnimations[0][0]
+	meshObj.mesh = null
 	timerForAnimation.start()
 
 # cover Animation Name to Animation ID
@@ -142,14 +143,16 @@ func animationNameToId(animationName: String):
 	for aname in dictForLoadedAnimations:
 		if animationName == aname:
 			return dictForLoadedAnimations[aname]
+	trace_prin(nick + ": Can not Found Animation : [" + animationName + "] in : " + str(dictForLoadedAnimations))
 	return -1
 
-
-func _play_control(animation: int, method : int, loop: bool = false):
+func _play_control(animation: int, method : int, loop: bool = false, restart = false):
 	if animation < 0 :
 		trace_prin(nick + ": Can not Play Animation, id not found")
 		pause()
 		return
+	if restart : #and method != PlayOrder.PlayInRamodm :
+		curAnimationFrame = 0
 	animationIdToPlay = animation
 	animationPlayOrder = method
 	isAnimationLoopPlay = loop
@@ -158,34 +161,34 @@ func _play_control(animation: int, method : int, loop: bool = false):
 # Plays stop motion animation.
 # Example:
 # mesh_animation_player.playWithID(id, true)
-func playWithID(animation: int, loop: bool = false):
-	_play_control(animation, PlayOrder.PlayInOrder, loop)
+func playWithID(animation: int, loop: bool = false, restart = false):
+	_play_control(animation, PlayOrder.PlayInOrder, loop, restart)
 
 # Plays stop motion animation.
 # Example:
-# mesh_animation_player.play('run', true)
-func play(animationName: String, loop: bool = false):
+# mesh_animation_player.play('run', true, true)
+func play(animationName: String, loop: bool = false, restart = false):
 	var id = animationNameToId(animationName)
-	playWithID(id, loop)
+	playWithID(id, loop, restart)
 
 # Plays stop motion in reverse.
 # Example:
 # mesh_animation_player.reverseWithID(id, true)
-func reverseWithID(animation: int, loop: bool = false):
-	_play_control(animation, PlayOrder.PlayInReverse, loop)
+func reverseWithID(animation: int, loop: bool = false, restart = false):
+	_play_control(animation, PlayOrder.PlayInReverse, loop, restart)
 
 # Plays stop motion in reverse.
 # Example:
 # mesh_animation_player.reverse('run', true)
-func reverse(animationName: String, loop: bool = false):
+func reverse(animationName: String, loop: bool = false, restart = false):
 	var id = animationNameToId(animationName)
-	reverseWithID(id, loop)
+	reverseWithID(id, loop, restart)
 
 # Plays stop motion in random order forever
 # Example:
 # mesh_animation_player.randomWithID(id)
 func randomWithID(animation: int):
-	_play_control(animation, PlayOrder.PlayInRamodm, true)
+	_play_control(animation, PlayOrder.PlayInRamodm, true, false)
 
 # Plays stop motion in random order forever
 # Example:
@@ -194,16 +197,16 @@ func random(animationName: String):
 	var id = animationNameToId(animationName)
 	randomWithID(id)
 
-# Stops animation and resets to initial 0,0 animation.
+# Stops animation and resets to current animation.
 func stop():
 	# Pause delay timer.
 	pause()
 	curAnimationFrame = 0
-	if len(loadedAnimations) == 0 or len(loadedAnimations[0]) == 0 :
+	if len(loadedAnimations) == 0 or len(loadedAnimations[animationIdToPlay]) == 0 :
 		trace_prin(nick + ": Stop, But nothing loaded")
 		return
 	# Set self mesh to zero.
-	meshObj.mesh = loadedAnimations[0][0]
+	meshObj.mesh = loadedAnimations[animationIdToPlay][0]
 # Pauses animation at current frame.
 func pause():
 	timerForAnimation.set_paused(true)

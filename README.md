@@ -78,12 +78,12 @@ Now to play animation you can call one of the three methods: `play`, `reverse`, 
 # Plays stop motion animation.
 # Example:
 # mesh_animation_player.play('run', true)
-play(animationName: String, loop: bool = false)
+play(animationName: String, loop: bool = false, restart = false))
 
 # Plays stop motion in reverse.
 # Example:
 # mesh_animation_player.reverse('run', true)
-reverse(animationName: String, loop: bool = false)
+reverse(animationName: String, loop: bool = false, restart = false))
 
 # Plays stop motion in random order forever
 # Example:
@@ -103,12 +103,12 @@ animationNameToId(animationName: String)
 # Plays stop motion animation.
 # Example:
 # mesh_animation_player.playWithID(id, true)
-playWithID(animation: int, loop: bool = false)
+playWithID(animation: int, loop: bool = false, restart = false))
 
 # Plays stop motion in reverse.
 # Example:
 # mesh_animation_player.reverseWithID(id, true)
-reverseWithID(animation: int, loop: bool = false)
+reverseWithID(animation: int, loop: bool = false, restart = false))
 
 # Plays stop motion in random order.
 # Example:
@@ -119,7 +119,7 @@ randomWithID(animation: int)
 #### stop & pause
 
 ```gdscript
-# Stops animation and resets to initial 0,0 animation.
+# Stops animation and resets to current animation.
 stop()
 
 # Pauses animation at current frame.
@@ -129,7 +129,7 @@ pause()
 resume()
 ```
 
-To stop animation call `stop()` which will reset mesh to animation0 frame0. In our case stand animation frame 0.
+To stop animation call `stop()` which will reset mesh to current animation frame0.
 
 Pausing an animation is done by `pause()` which will keep the running animationID and its current frame.
 
