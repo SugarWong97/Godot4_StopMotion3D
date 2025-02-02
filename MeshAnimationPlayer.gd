@@ -12,6 +12,7 @@ enum PlayOrder
 	PlayInRamodm
 }
 
+signal animation_frame_changed(anim_name : StringName, frame_index : int)
 ## For no loop animation
 signal animation_finished(anim_name : StringName)
 
@@ -231,21 +232,26 @@ func loopFrames():
 
 	if animationPlayOrder == PlayOrder.PlayInOrder :
 		if curAnimationFrame < nOfFrames:
+			animation_frame_changed.emit(curAnimationName, curAnimationFrame)
 			curAnimationFrame += 1
 		elif isAnimationLoopPlay == true:
+			animation_frame_changed.emit(curAnimationName, curAnimationFrame)
 			curAnimationFrame = 0
 		else:
 			pause()
 			animation_finished.emit(curAnimationName)
 	if animationPlayOrder == PlayOrder.PlayInReverse :
 		if curAnimationFrame > 0:
+			animation_frame_changed.emit(curAnimationName, curAnimationFrame)
 			curAnimationFrame -= 1
 		elif isAnimationLoopPlay == true:
+			animation_frame_changed.emit(curAnimationName, curAnimationFrame)
 			curAnimationFrame = nOfFrames
 		else:
 			pause()
 			animation_finished.emit(curAnimationName)
 	if animationPlayOrder == PlayOrder.PlayInRamodm:
+		animation_frame_changed.emit(curAnimationName, curAnimationFrame)
 		curAnimationFrame = randi() % nOfFrames
 
 # Updates delay
