@@ -12,6 +12,9 @@ enum PlayOrder
 	PlayInRamodm
 }
 
+## For no loop animation
+signal animation_finished(anim_name : StringName)
+
 # Global animation container
 var nick = 'StopMotion3D'
 var loadedAnimations = []
@@ -24,6 +27,7 @@ var animationIdToPlay = 0
 var animationPlayOrder = PlayOrder.PlayInOrder
 var isAnimationLoopPlay = false
 var curAnimationFrame = 0
+var curAnimationName : String
 var frameDelay = 0
 
 # Actual timer.
@@ -169,6 +173,7 @@ func playWithID(animation: int, loop: bool = false, restart = false):
 # mesh_animation_player.play('run', true, true)
 func play(animationName: String, loop: bool = false, restart = false):
 	var id = animationNameToId(animationName)
+	curAnimationName = animationName
 	playWithID(id, loop, restart)
 
 # Plays stop motion in reverse.
@@ -182,6 +187,7 @@ func reverseWithID(animation: int, loop: bool = false, restart = false):
 # mesh_animation_player.reverse('run', true)
 func reverse(animationName: String, loop: bool = false, restart = false):
 	var id = animationNameToId(animationName)
+	curAnimationName = animationName
 	reverseWithID(id, loop, restart)
 
 # Plays stop motion in random order forever
@@ -195,6 +201,7 @@ func randomWithID(animation: int):
 # mesh_animation_player.random('run')
 func random(animationName: String):
 	var id = animationNameToId(animationName)
+	curAnimationName = animationName
 	randomWithID(id)
 
 # Stops animation and resets to current animation.
@@ -229,6 +236,7 @@ func loopFrames():
 			curAnimationFrame = 0
 		else:
 			pause()
+			animation_finished.emit(curAnimationName)
 	if animationPlayOrder == PlayOrder.PlayInReverse :
 		if curAnimationFrame > 0:
 			curAnimationFrame -= 1
@@ -236,6 +244,7 @@ func loopFrames():
 			curAnimationFrame = nOfFrames
 		else:
 			pause()
+			animation_finished.emit(curAnimationName)
 	if animationPlayOrder == PlayOrder.PlayInRamodm:
 		curAnimationFrame = randi() % nOfFrames
 
