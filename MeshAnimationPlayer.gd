@@ -1,7 +1,7 @@
 extends Node3D
 class_name MeshAnimationPlayer
 
-@export var defaultFPS : int = 30
+@export var defaultFPS : float = 30.0
 @export_dir var loadAnimationsPath : Array[String]
 @export_enum("obj", "gltf") var animationExtension: String = "gltf"
 @export_node_path("MeshInstance3D") var meshNodePath
@@ -21,6 +21,7 @@ signal animation_finished(anim_name : StringName)
 var nick = 'StopMotion3D'
 var loadedAnimations = []
 var dictForLoadedAnimations = {}
+var dictForAnimationsFPS = {}
 
 var meshObj : MeshInstance3D
 
@@ -31,6 +32,7 @@ var isAnimationLoopPlay = false
 var curAnimationFrame = 0
 var curAnimationName : String
 var oldAnimationID : int = -1
+var curAnimationFps : float = -1.0
 
 # Actual timer.
 var timerForAnimation = null
@@ -62,6 +64,7 @@ func recordNewFrame(gotMesh, animationName, index) :
 		#trace_prin("set map animationName [" +  animationName + "] = "+ str(index))
 		dictForLoadedAnimations[animationName] = index
 		loadedAnimations[index].push_back(gotMesh)
+		set_animation_fps(animationName, defaultFPS)
 
 func _ready() :
 	# Set initial timer.
@@ -87,6 +90,7 @@ func init() :
 	set_default_fps(defaultFPS)
 	loadedAnimations.clear()
 	dictForLoadedAnimations.clear()
+	dictForAnimationsFPS.clear()
 
 	# Load all objects from directory.
 	for i in range(loadAnimationsPath.size()):
@@ -142,7 +146,6 @@ func init() :
 	# Set initial frame.
 	#meshObj.mesh = loadedAnimations[0][0]
 	meshObj.mesh = null
-	timerForAnimation.start()
 
 # cover Animation Name to Animation ID
 # Example:
@@ -160,6 +163,9 @@ func _play_control(animation: int, method : int, loop: bool = false, restart = f
 		trace_prin(nick + ": Can not Play Animation, id not found")
 		pause()
 		return
+
+	_apply_timer_delay(dictForAnimationsFPS[animation])
+
 	oldAnimationID = animationIdToPlay
 	if restart or animationIdToPlay != oldAnimationID :
 		curAnimationFrame = 0
@@ -183,6 +189,7 @@ func playWithID(animation: int, loop: bool = false, restart = false):
 func play(animationName: String, loop: bool = false, restart = false):
 	var id = animationNameToId(animationName)
 	curAnimationName = animationName
+	print("Play " + curAnimationName + ", fps is " + str(dictForAnimationsFPS[id]))
 	playWithID(id, loop, restart)
 
 # Plays stop motion in reverse.
@@ -264,9 +271,26 @@ func loopFrames():
 		curAnimationFrame = randi() % nOfFrames
 
 # Updates delay
-func set_default_fps(fps: int):
+func _apply_timer_delay(fps : float) :
 	var frameDelayS : float
-	defaultFPS = fps
 	frameDelayS = 1.0 / fps * 1.0
+
 	timerForAnimation.set_wait_time(frameDelayS)
-	isNeedPlayImmediatelyWhenPlayCtrl = true
+	if curAnimationFps != fps:
+		isNeedPlayImmediatelyWhenPlayCtrl = true
+	curAnimationFps = fps
+	timerForAnimation.stop()
+	timerForAnimation.start()
+	#trace_prin(nick + " change fps from " + str(curAnimationFps) + " to " + str(fps))
+
+# Updates delay
+func set_default_fps(fps: float):
+	defaultFPS = fps
+
+func set_animation_fps(animationName: String, fps : float):
+	var id = animationNameToId(animationName)
+	dictForAnimationsFPS[id] = fps
+	# if now is playing, apply immediately
+	if animationIdToPlay == id and timerForAnimation.is_stopped() == false:
+		_apply_timer_delay(fps)
+	#trace_prin(nick + " Set " + animationName + " fps " + str(fps))
