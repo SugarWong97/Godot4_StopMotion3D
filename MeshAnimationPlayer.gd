@@ -29,6 +29,7 @@ var animationPlayOrder = PlayOrder.PlayInOrder
 var isAnimationLoopPlay = false
 var curAnimationFrame = 0
 var curAnimationName : String
+var oldAnimationID : int = -1
 var frameDelay = 0
 
 # Actual timer.
@@ -135,6 +136,8 @@ func init() :
 		trace_prin(nick + ": Not Animation Loaded")
 		return
 
+	oldAnimationID = -1
+
 	# Set initial frame.
 	#meshObj.mesh = loadedAnimations[0][0]
 	meshObj.mesh = null
@@ -156,7 +159,8 @@ func _play_control(animation: int, method : int, loop: bool = false, restart = f
 		trace_prin(nick + ": Can not Play Animation, id not found")
 		pause()
 		return
-	if restart : #and method != PlayOrder.PlayInRamodm :
+	oldAnimationID = animationIdToPlay
+	if restart or animationIdToPlay != oldAnimationID :
 		curAnimationFrame = 0
 	animationIdToPlay = animation
 	animationPlayOrder = method
