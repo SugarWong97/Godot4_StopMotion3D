@@ -17,7 +17,7 @@ script = ExtResource("4_i45uy")
 
 [node name="MeshAnimationPlayer" type="Node3D" parent="."]
 script = ExtResource("2")
-loadAnimationsPath = Array[String](["res://meshes/character1/run"])
+loadAnimationsPath = Array[String](["res://meshes/character1/run", "res://meshes/character1/idle"])
 meshNodePath = NodePath("../MeshInstance3D")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
