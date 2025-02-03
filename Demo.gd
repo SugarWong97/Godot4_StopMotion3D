@@ -9,7 +9,7 @@ func _ready():
 	mesh_animation_player.animation_finished.connect(_when_mesh_animation_player_animation_finished)
 
 	# Set delay for frames
-	mesh_animation_player.set_delayms(150)
+	#mesh_animation_player.set_default_fps(12)
 
 	mesh_animation_player.play('run', true) # play 'run'
 	#var id = mesh_animation_player.animationNameToId('run')

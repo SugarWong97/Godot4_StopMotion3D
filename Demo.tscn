@@ -16,6 +16,7 @@ fov = 40.0
 script = ExtResource("4_i45uy")
 
 [node name="MeshAnimationPlayer" type="Node3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
 script = ExtResource("2")
 loadAnimationsPath = Array[String](["res://meshes/character1/run", "res://meshes/character1/idle"])
 meshNodePath = NodePath("../MeshInstance3D")
