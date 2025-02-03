@@ -1,6 +1,7 @@
 extends Node3D
 class_name MeshAnimationPlayer
 
+@export var defaultFPS : int = 30
 @export_dir var loadAnimationsPath : Array[String]
 @export_enum("obj", "gltf") var animationExtension: String = "gltf"
 @export_node_path("MeshInstance3D") var meshNodePath
@@ -30,10 +31,10 @@ var isAnimationLoopPlay = false
 var curAnimationFrame = 0
 var curAnimationName : String
 var oldAnimationID : int = -1
-var frameDelay = 0
 
 # Actual timer.
 var timerForAnimation = null
+var isNeedPlayImmediatelyWhenPlayCtrl = true
 
 func trace_prin(info_str):
 	push_error(info_str)
@@ -69,7 +70,6 @@ func _ready() :
 	timerForAnimation = Timer.new()
 	# Set time delay configuration.
 	timerForAnimation.set_one_shot(false)
-	set_delayms()
 	timerForAnimation.set_autostart(true)
 	timerForAnimation.stop()
 	timerForAnimation.connect('timeout', Callable(self, 'loopFrames'))
@@ -83,7 +83,8 @@ func _ready() :
 func init() :
 	var source = ""
 	var animationName = ""
-
+	isNeedPlayImmediatelyWhenPlayCtrl = true
+	set_default_fps(defaultFPS)
 	loadedAnimations.clear()
 	dictForLoadedAnimations.clear()
 
@@ -165,6 +166,9 @@ func _play_control(animation: int, method : int, loop: bool = false, restart = f
 	animationIdToPlay = animation
 	animationPlayOrder = method
 	isAnimationLoopPlay = loop
+	if isNeedPlayImmediatelyWhenPlayCtrl :
+		loopFrames()
+		isNeedPlayImmediatelyWhenPlayCtrl = false
 	resume()
 
 # Plays stop motion animation.
@@ -214,6 +218,7 @@ func stop():
 	# Pause delay timer.
 	pause()
 	curAnimationFrame = 0
+	isNeedPlayImmediatelyWhenPlayCtrl = true
 	if len(loadedAnimations) == 0 or len(loadedAnimations[animationIdToPlay]) == 0 :
 		trace_prin(nick + ": Stop, But nothing loaded")
 		return
@@ -259,6 +264,9 @@ func loopFrames():
 		curAnimationFrame = randi() % nOfFrames
 
 # Updates delay
-func set_delayms(delay_ms: int = 150):
-	frameDelay = delay_ms / 1000.0
-	timerForAnimation.set_wait_time(frameDelay)
+func set_default_fps(fps: int):
+	var frameDelayS : float
+	defaultFPS = fps
+	frameDelayS = 1.0 / fps * 1.0
+	timerForAnimation.set_wait_time(frameDelayS)
+	isNeedPlayImmediatelyWhenPlayCtrl = true
