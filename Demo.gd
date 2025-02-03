@@ -11,7 +11,10 @@ func _ready():
 	# Set delay for frames
 	#mesh_animation_player.set_default_fps(12)
 
+	#mesh_animation_player.set_animation_fps('run', 1) # config 'run' fps
 	mesh_animation_player.play('run', true) # play 'run'
+	#mesh_animation_player.set_animation_fps('run', 30) # config 'run' fps
+
 	#var id = mesh_animation_player.animationNameToId('run')
 	#mesh_animation_player.playWithID(id, true) # play 'run'
 
@@ -35,3 +38,9 @@ func _input(event):
 			mesh_animation_player.play('run', true)
 		if Input.is_physical_key_pressed(KEY_X) :
 			mesh_animation_player.play('idle', false, true)
+		if Input.is_physical_key_pressed(KEY_C) :
+			mesh_animation_player.set_animation_fps('run', 30)
+			mesh_animation_player.set_animation_fps('idle', 30)
+		if Input.is_physical_key_pressed(KEY_V) :
+			mesh_animation_player.set_animation_fps('run', 12)
+			mesh_animation_player.set_animation_fps('idle', 12)
